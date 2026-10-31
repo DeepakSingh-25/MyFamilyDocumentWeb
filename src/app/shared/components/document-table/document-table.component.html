@@ -1,0 +1,106 @@
+@if (loading()) {
+  <div class="text-center py-5"><span class="spinner-border text-primary"></span></div>
+} @else if (documents().length === 0) {
+  <div class="empty-state">
+    <i class="bi bi-file-earmark-x"></i>
+    <p class="mb-3">{{ emptyText() }}</p>
+    <a class="btn btn-primary" routerLink="/documents/new" [queryParams]="addParams()"><i class="bi bi-plus-lg"></i> {{ addLabel() }}</a>
+  </div>
+} @else {
+  <!-- Desktop table -->
+  <div class="table-responsive d-none d-md-block">
+    <table class="table table-clean">
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Member</th>
+          <th>{{ medical() ? 'Hospital / Doctor' : 'Category' }}</th>
+          <th>Uploaded</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (d of documents(); track d.id) {
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi file-icon" [class.bi-file-earmark-pdf]="d.fileType === 'pdf'" [class.bi-file-earmark-image]="d.fileType !== 'pdf'"></i>
+                <div>
+                  <span class="fw-medium">{{ d.name }}</span>
+                  @if (medical() && d.documentDate) { <div class="text-gray fs-13">Report: {{ d.documentDate | date: 'd MMM y' }}</div> }
+                </div>
+              </div>
+            </td>
+            <td>{{ d.memberName }}</td>
+            <td>
+              @if (medical()) { {{ d.hospitalOrDoctor || '—' }} }
+              @else { <span class="pill" [class.medical]="d.categoryId === medicalId">{{ d.categoryName }}</span> }
+            </td>
+            <td class="text-gray">{{ d.uploadedOn | date: 'd MMM y' }}</td>
+            <td class="text-end text-nowrap">
+              <button class="icon-btn" title="View" (click)="openPreview(d)"><i class="bi bi-eye"></i></button>
+              <button class="icon-btn" title="Download" (click)="download(d)"><i class="bi bi-download"></i></button>
+              <a class="icon-btn" title="Edit" [routerLink]="['/documents', d.id, 'edit']" [queryParams]="editParams()"><i class="bi bi-pencil"></i></a>
+              <button class="icon-btn danger" title="Delete" (click)="remove(d)"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile cards -->
+  <div class="d-md-none p-2">
+    @for (d of documents(); track d.id) {
+      <div class="mobile-doc">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div>
+            <div class="fw-medium">{{ d.name }}</div>
+            <div class="text-gray fs-13">{{ d.memberName }} · {{ d.uploadedOn | date: 'd MMM y' }}</div>
+            @if (medical() && d.documentDate) { <div class="text-gray fs-13">Report: {{ d.documentDate | date: 'd MMM y' }}</div> }
+            @if (medical() && d.hospitalOrDoctor) { <div class="text-gray fs-13">{{ d.hospitalOrDoctor }}</div> }
+          </div>
+          @if (!medical()) { <span class="pill" [class.medical]="d.categoryId === medicalId">{{ d.categoryName }}</span> }
+        </div>
+        <div class="d-flex gap-1 mt-2">
+          <button class="icon-btn" title="View" (click)="openPreview(d)"><i class="bi bi-eye"></i></button>
+          <button class="icon-btn" title="Download" (click)="download(d)"><i class="bi bi-download"></i></button>
+          <a class="icon-btn" title="Edit" [routerLink]="['/documents', d.id, 'edit']" [queryParams]="editParams()"><i class="bi bi-pencil"></i></a>
+          <button class="icon-btn danger ms-auto" title="Delete" (click)="remove(d)"><i class="bi bi-trash"></i></button>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- Preview -->
+@if (preview(); as p) {
+  <div class="preview-backdrop" (click)="closePreview()">
+    <div class="card-box preview-box" (click)="$event.stopPropagation()">
+      <div class="card-head">
+        <h5 class="text-truncate">{{ p.doc.name }}</h5>
+        <div class="d-flex gap-1">
+          <button class="icon-btn" title="Download" (click)="download(p.doc)"><i class="bi bi-download"></i></button>
+          <button class="icon-btn" title="Close" (click)="closePreview()"><i class="bi bi-x-lg"></i></button>
+        </div>
+      </div>
+      <div class="preview-area">
+        @if (!p.url) {
+          <span class="spinner-border text-primary"></span>
+        } @else if (p.pdfUrl) {
+          <iframe [src]="p.pdfUrl" title="PDF preview"></iframe>
+        } @else {
+          <img [src]="p.url" [alt]="p.doc.name">
+        }
+      </div>
+      <div class="card-body fs-13 d-flex flex-wrap gap-3">
+        <span><span class="text-gray">Member:</span> {{ p.doc.memberName }}</span>
+        <span><span class="text-gray">Category:</span> {{ p.doc.categoryName }}</span>
+        @if (p.doc.hospitalOrDoctor) { <span><span class="text-gray">Hospital / Doctor:</span> {{ p.doc.hospitalOrDoctor }}</span> }
+        @if (p.doc.documentDate) { <span><span class="text-gray">Date:</span> {{ p.doc.documentDate | date: 'd MMM y' }}</span> }
+        <span><span class="text-gray">File:</span> {{ p.doc.fileName }} ({{ size(p.doc.fileSize) }})</span>
+        @if (p.doc.notes) { <span class="w-100"><span class="text-gray">Notes:</span> {{ p.doc.notes }}</span> }
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,55 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Family Members</h2>
+      <p>Tap a member to see their documents.</p>
+    </div>
+    <button class="btn btn-primary" (click)="openForm()"><i class="bi bi-person-plus"></i> Add Member</button>
+  </div>
+
+  @if (loading()) {
+    <div class="text-center py-5"><span class="spinner-border text-primary"></span></div>
+  } @else if (loadError()) {
+    <div class="card-box empty-state" role="alert">
+      <i class="bi bi-exclamation-circle"></i>
+      <p class="mb-1 fw-semibold">Could not load family members.</p>
+      <p class="mb-3">{{ loadError() }}</p>
+      <button class="btn btn-primary" (click)="load()"><i class="bi bi-arrow-clockwise"></i> Retry</button>
+    </div>
+  } @else {
+    <div class="row g-3">
+      @for (m of members(); track m.id) {
+        <div class="col-12 col-sm-6 col-xl-4">
+          <div class="card-box member-card">
+            <a class="member-main" [routerLink]="['/family-members', m.id]">
+              <span class="avatar lg">{{ m.name | initials }}</span>
+              <div class="min-w-0">
+                <div class="fw-semibold text-truncate">{{ m.name }}</div>
+                <div class="text-gray fs-13">{{ m.relationship }}@if (m.dateOfBirth) { · {{ m.dateOfBirth | date: 'd MMM y' }} }</div>
+              </div>
+            </a>
+            <div class="member-foot">
+              <span class="pill">{{ m.documentCount }} {{ m.documentCount === 1 ? 'document' : 'documents' }}</span>
+              <div>
+                <button class="icon-btn" title="Edit" aria-label="Edit {{ m.name }}" (click)="openForm(m)"><i class="bi bi-pencil"></i></button>
+                <button class="icon-btn danger" title="Delete" aria-label="Delete {{ m.name }}" (click)="remove(m)"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <div class="card-box empty-state">
+            <i class="bi bi-people"></i>
+            <p class="mb-3">No family members yet.</p>
+            <button class="btn btn-primary" (click)="openForm()"><i class="bi bi-plus-lg"></i> Add the first member</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (formOpen()) {
+  <app-member-form [member]="editing()" [members]="members()" (saved)="onSaved()" (closed)="formOpen.set(false)" (missing)="onMissing($event)" />
+}

@@ -1,0 +1,38 @@
+@if (totalCount() > 0) {
+  <div class="paginator">
+    <!-- Left: "Showing 1–10 of 57" + Rows; right: page buttons -->
+    <div class="summary">
+      <span class="showing text-gray fs-13">Showing {{ from() }}–{{ to() }} of {{ totalCount() }}</span>
+      <div class="rows">
+        <label class="text-gray fs-13" [for]="sizeId">Rows</label>
+        <!-- aria-disabled, not disabled: a disabled control drops keyboard focus while the page loads -->
+        <select #sizeSelect class="form-select" [id]="sizeId" [attr.aria-disabled]="disabled() || null"
+          (change)="changeSize(sizeSelect)">
+          @for (s of sizes; track s) { <option [value]="s" [selected]="s === pageSize()">{{ s }}</option> }
+        </select>
+      </div>
+    </div>
+
+    <!-- Previous / Next always visible; on a single page both are disabled -->
+    <nav [attr.aria-label]="label()">
+      <button type="button" class="icon-btn step-btn" aria-label="Previous page"
+        [attr.aria-disabled]="disabled() || page() <= 1 || null" (click)="go(page() - 1)">
+        <i class="bi bi-chevron-left"></i><span class="d-none d-sm-inline">Previous</span>
+      </button>
+      @for (p of pages(); track $index) {
+        @if (p === 'gap') {
+          <span class="gap d-none d-sm-inline-flex" aria-hidden="true">…</span>
+        } @else {
+          <button type="button" class="icon-btn page-num d-none d-sm-inline-flex" [class.active]="p === page()"
+            [attr.aria-current]="p === page() ? 'page' : null" [attr.aria-label]="'Page ' + p"
+            [attr.aria-disabled]="disabled() || null" (click)="go(p)">{{ p }}</button>
+        }
+      }
+      <span class="phone-page d-sm-none fs-13">Page {{ page() }} of {{ totalPages() }}</span>
+      <button type="button" class="icon-btn step-btn" aria-label="Next page"
+        [attr.aria-disabled]="disabled() || page() >= totalPages() || null" (click)="go(page() + 1)">
+        <span class="d-none d-sm-inline">Next</span><i class="bi bi-chevron-right"></i>
+      </button>
+    </nav>
+  </div>
+}

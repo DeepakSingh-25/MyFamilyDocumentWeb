@@ -1,0 +1,105 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>My Profile</h2>
+      <p>Your name and account details.</p>
+    </div>
+    <a class="btn btn-outline" routerLink="/account/change-password"><i class="bi bi-key"></i> Change password</a>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-7 col-xl-6">
+      <div class="card-box">
+        <div class="card-head">
+          <h5>Profile</h5>
+          @if (profile() && !editing()) {
+            <button type="button" class="btn btn-sm btn-outline" (click)="startEdit()">
+              <i class="bi bi-pencil"></i> Edit
+            </button>
+          }
+        </div>
+        <div class="card-body">
+          @if (profile(); as p) {
+            <div class="profile-hero" [class.dragging]="dragging()"
+                 (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+              @if (dragging()) {
+                <div class="drop-overlay"><i class="bi bi-cloud-arrow-up"></i> Drop the photo to upload</div>
+              }
+              <div class="photo-box">
+                @if (photoUrl(); as src) {
+                  <img class="avatar xl photo" [src]="src" alt="Profile photo">
+                } @else {
+                  <span class="avatar xl">{{ p.fullName | initials }}</span>
+                }
+                <button type="button" class="photo-btn" (click)="photoInput.click()" [disabled]="savingPhoto()"
+                        [attr.aria-label]="p.hasPhoto ? 'Change photo' : 'Add photo'" [attr.title]="p.hasPhoto ? 'Change photo' : 'Add photo'">
+                  @if (savingPhoto()) { <span class="spinner-border spinner-border-sm"></span> } @else { <i class="bi bi-pencil-fill"></i> }
+                </button>
+                <input #photoInput type="file" class="d-none" [accept]="photoAccept" (change)="onPhotoPicked(photoInput)">
+              </div>
+              <div class="min-w-0 flex-grow-1">
+                @if (editing()) {
+                  <form [formGroup]="nameForm" (ngSubmit)="saveName()" novalidate>
+                    <label class="form-label" for="fullName">Full name</label>
+                    <input id="fullName" class="form-control" formControlName="fullName" autocomplete="name">
+                    @let name = nameForm.controls.fullName;
+                    @if (name.touched && name.hasError('maxlength')) {
+                      <div class="field-error">Use at most 100 characters.</div>
+                    } @else if (name.touched && name.invalid) {
+                      <div class="field-error">Full name is required.</div>
+                    }
+                    @if (nameError()) { <div class="field-error">{{ nameError() }}</div> }
+                    <div class="d-flex gap-2 mt-2">
+                      <button type="submit" class="btn btn-sm btn-primary" [disabled]="savingName()">
+                        @if (savingName()) { <span class="spinner-border spinner-border-sm"></span> }
+                        Save
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline" (click)="cancelEdit()" [disabled]="savingName()">Cancel</button>
+                    </div>
+                  </form>
+                } @else {
+                  <div class="profile-name text-truncate">{{ p.fullName }}</div>
+                  <div class="text-gray text-truncate"><i class="bi bi-envelope me-1"></i>{{ p.email }}</div>
+                  <span class="pill mt-2 d-inline-block"><i class="bi bi-shield-check me-1"></i>Family owner</span>
+                }
+              </div>
+            </div>
+
+            <div class="photo-hint">
+              <span>{{ p.hasPhoto ? 'Click the pencil or drag a photo here to change it.' : 'Click the pencil or drag a photo here.' }} {{ photoTypes }}, up to 2 MB.</span>
+              @if (p.hasPhoto) {
+                <button type="button" class="link-danger-btn" (click)="removePhoto()" [disabled]="savingPhoto()">
+                  <i class="bi bi-trash3"></i> Remove photo
+                </button>
+              }
+            </div>
+            @if (photoError()) { <div class="field-error mb-3">{{ photoError() }}</div> }
+
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-label"><span class="info-icon"><i class="bi bi-calendar3"></i></span>Member since</span>
+                <span class="fw-medium">{{ p.createdOn | date: 'MMMM y' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><span class="info-icon"><i class="bi bi-key"></i></span>Password last changed</span>
+                <span class="fw-medium">{{ p.passwordChangedOn ? (p.passwordChangedOn | date: 'd MMM y') : 'Never' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><span class="info-icon"><i class="bi bi-person-plus"></i></span>Sign up</span>
+                <span class="pill">{{ registrationOpen() ? 'Open (one time)' : 'Closed' }}</span>
+              </div>
+            </div>
+          } @else if (loadError()) {
+            <div class="alert alert-danger d-flex align-items-center gap-2 mb-0">
+              <i class="bi bi-exclamation-triangle"></i>
+              <span class="flex-grow-1">{{ loadError() }}</span>
+              <button type="button" class="btn btn-sm btn-primary" (click)="load()">Retry</button>
+            </div>
+          } @else {
+            <div class="text-center py-4"><span class="spinner-border text-primary"></span></div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

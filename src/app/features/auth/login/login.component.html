@@ -1,0 +1,30 @@
+<app-auth-layout heading="Login" subtitle="Sign in to see your family's documents.">
+  @if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="mb-3">
+      <label class="form-label" for="email">Email</label>
+      <input id="email" type="email" class="form-control" formControlName="email" placeholder="you@example.com" autocomplete="email">
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <div class="field-error">Please enter a valid email address.</div>
+      }
+    </div>
+    <div class="mb-2">
+      <label class="form-label" for="password">Password</label>
+      <div class="pass-wrap">
+        <input id="password" [type]="showPassword() ? 'text' : 'password'" class="form-control pe-5" formControlName="password" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="pass-toggle" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+          <i class="bi" [class.bi-eye]="!showPassword()" [class.bi-eye-slash]="showPassword()"></i>
+        </button>
+      </div>
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <div class="field-error">Password is required.</div>
+      }
+    </div>
+    <div class="text-end mb-4"><a routerLink="/forgot-password">Forgot password?</a></div>
+    <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="saving()">
+      @if (saving()) { <span class="spinner-border spinner-border-sm"></span> }
+      Log In
+    </button>
+    <p class="text-center mb-0">First time here? <a routerLink="/signup">Create the family account</a></p>
+  </form>
+</app-auth-layout>

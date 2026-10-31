@@ -1,0 +1,6 @@
+.lookup-card { max-width: 900px; }
+.lookup-list { list-style: none; margin: 0; padding: 4px 0; }
+.lookup-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--fd-border); }
+.lookup-row:last-child { border-bottom: none; }
+/* Text takes the free space and may shrink, so a long example list wraps instead of pushing the badge out */
+.lookup-text { flex: 1; min-width: 0; }

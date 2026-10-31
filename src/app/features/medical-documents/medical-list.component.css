@@ -1,0 +1,12 @@
+.member-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+.member-tab { display: flex; align-items: center; gap: 8px; border: 1px solid var(--fd-border); background: var(--fd-surface); border-radius: 30px; padding: 5px 14px 5px 5px; white-space: nowrap; font-size: 13px; }
+.member-tab.active { border-color: var(--fd-primary); background: var(--fd-primary-soft); color: var(--fd-primary); font-weight: 500; }
+.avatar.sm { width: 28px; height: 28px; font-size: 12px; }
+.count { background: var(--fd-surface); border-radius: 10px; padding: 0 7px; font-size: 12px; border: 1px solid var(--fd-border); }
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 16px; border-bottom: 1px solid var(--fd-border); }
+.filters .search { position: relative; flex: 0 1 420px; min-width: 200px; }
+/* Clear on the right, same as All Documents */
+.filters .clear { margin-left: auto; }
+.result-count { padding: 10px 16px 0; }
+.filters .search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--fd-muted); }
+.filters .search input { padding-left: 36px; }

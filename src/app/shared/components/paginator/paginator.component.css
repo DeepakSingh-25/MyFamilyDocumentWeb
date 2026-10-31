@@ -1,0 +1,20 @@
+.paginator { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 16px; border-top: 1px solid var(--fd-border); }
+.summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.rows { display: flex; align-items: center; gap: 8px; }
+.rows .form-select { width: auto; padding: 4px 32px 4px 10px; font-size: 13px; }
+nav { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+.page-num { font-size: 13px; font-weight: 500; }
+.step-btn { width: auto; padding: 0 10px; gap: 4px; font-size: 13px; font-weight: 500; border: 1px solid var(--fd-border); }
+.page-num.active { background: var(--fd-primary); color: #fff; }
+.icon-btn[aria-disabled="true"] { color: var(--fd-muted); opacity: .5; cursor: default; background: transparent; }
+.page-num.active[aria-disabled="true"] { background: var(--fd-primary); color: #fff; opacity: .6; }
+.icon-btn:focus-visible { outline: 2px solid var(--fd-primary); outline-offset: 1px; }
+.gap { width: 24px; justify-content: center; color: var(--fd-muted); }
+.phone-page { padding: 0 8px; white-space: nowrap; }
+.form-select[aria-disabled="true"] { opacity: .6; }
+
+/* Phone: "Showing" + Rows on one line, "‹ Page 3 of 6 ›" on the next */
+@media (max-width: 575px) {
+  .summary { width: 100%; justify-content: space-between; }
+  nav { margin-left: 0; width: 100%; justify-content: space-between; }
+}

@@ -1,0 +1,55 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>All Documents</h2>
+      <p>Search, view and manage every family document.</p>
+    </div>
+    <a class="btn btn-primary" routerLink="/documents/new" [queryParams]="{ returnUrl: currentUrl() }"><i class="bi bi-plus-lg"></i> Add Document</a>
+  </div>
+
+  @let s = state();
+  <div class="card-box" #card>
+    <div class="filters">
+      <div class="search">
+        <i class="bi bi-search"></i>
+        <input class="form-control" placeholder="Search by name, hospital or doctor" aria-label="Search documents"
+          [attr.maxlength]="searchMax" [value]="searchText()" (input)="onSearch($any($event.target).value)">
+      </div>
+      <!-- Member / category filters on the right -->
+      <div class="filter-selects">
+        @if (hasFilters()) {
+          <button class="btn btn-link text-decoration-none px-1" (click)="clear()">Clear</button>
+        }
+        <select class="form-select" (change)="onMember($any($event.target).value)" aria-label="Filter by member">
+          <option value="" [selected]="!s.memberId">All members</option>
+          @for (m of members(); track m.id) { <option [value]="m.id" [selected]="m.id === s.memberId">{{ m.name }}</option> }
+        </select>
+        <select class="form-select" (change)="onCategory($any($event.target).value)" aria-label="Filter by category">
+          <option value="" [selected]="!s.categoryId">All categories</option>
+          @for (c of categories(); track c.id) { <option [value]="c.id" [selected]="c.id === s.categoryId">{{ c.name }}</option> }
+        </select>
+      </div>
+    </div>
+
+    @if (loadError()) {
+      <div class="empty-state" role="alert">
+        <i class="bi bi-exclamation-circle"></i>
+        <p class="mb-1 fw-semibold">Could not load documents.</p>
+        <p class="mb-3">{{ loadError() }}</p>
+        <button class="btn btn-primary" (click)="refresh()"><i class="bi bi-arrow-clockwise"></i> Retry</button>
+      </div>
+    } @else {
+      @let r = result();
+      @if (!loading() && r) {
+        <div class="result-count text-gray fs-13">{{ r.totalCount }} {{ r.totalCount === 1 ? 'document' : 'documents' }}</div>
+      }
+      <app-document-table [documents]="documents()" [loading]="loading()" [returnUrl]="currentUrl()"
+        [emptyText]="hasFilters() ? 'No documents match these filters.' : 'No documents found.'"
+        (deleted)="refresh()" />
+      @if (r) {
+        <app-paginator [page]="r.page" [pageSize]="r.pageSize" [totalCount]="r.totalCount" [totalPages]="r.totalPages"
+          [disabled]="loading()" (pageChange)="onPage($event)" (pageSizeChange)="onPageSize($event)" />
+      }
+    }
+  </div>
+</div>

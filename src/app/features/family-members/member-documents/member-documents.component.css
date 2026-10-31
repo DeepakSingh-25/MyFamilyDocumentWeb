@@ -1,0 +1,5 @@
+.avatar.lg { width: 52px; height: 52px; font-size: 20px; flex-shrink: 0; }
+.min-w-0 { min-width: 0; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.chip { border: 1px solid var(--fd-border); background: var(--fd-surface); border-radius: 20px; padding: 6px 14px; font-size: 13px; white-space: nowrap; color: var(--fd-text); }
+.chip.active { background: var(--fd-primary); color: #fff; border-color: var(--fd-primary); }

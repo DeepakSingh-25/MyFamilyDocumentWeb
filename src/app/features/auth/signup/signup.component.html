@@ -1,0 +1,71 @@
+<app-auth-layout heading="Create Account" subtitle="Set up the private family account.">
+  @if (statusError()) {
+    <div class="alert alert-danger d-flex gap-2">
+      <i class="bi bi-wifi-off"></i>
+      <span>{{ statusError() }}</span>
+    </div>
+    <button type="button" class="btn btn-primary w-100 mb-3" (click)="loadStatus()">Retry</button>
+    <a routerLink="/login" class="btn btn-outline w-100">Back to login</a>
+  } @else if (open() === null) {
+    <div class="text-center py-4"><span class="spinner-border text-primary"></span></div>
+  } @else if (!open()) {
+    <div class="alert alert-warning d-flex gap-2">
+      <i class="bi bi-lock"></i>
+      <span>Sign up is closed. This is a private family app — ask the account owner for access.</span>
+    </div>
+    <a routerLink="/login" class="btn btn-outline w-100">Back to login</a>
+  } @else {
+    <div class="alert alert-primary fs-13 py-2 d-flex gap-2">
+      <i class="bi bi-lock"></i>
+      <span>Sign up works only once, with the one-time setup code from the account owner. After that it is closed.</span>
+    </div>
+    @if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="mb-3">
+        <label class="form-label" for="fullName">Full name</label>
+        <input id="fullName" class="form-control" formControlName="fullName" placeholder="Your name" autocomplete="name">
+        @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+          <div class="field-error">Name is required.</div>
+        }
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="email">Email</label>
+        <input id="email" type="email" class="form-control" formControlName="email" placeholder="you@example.com" autocomplete="email">
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <div class="field-error">Please enter a valid email address.</div>
+        }
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="password">Password</label>
+        <div class="pass-wrap">
+          <input id="password" [type]="showPassword() ? 'text' : 'password'" class="form-control pe-5" formControlName="password" placeholder="At least 8 characters" autocomplete="new-password">
+          <button type="button" class="pass-toggle" (click)="showPassword.set(!showPassword())" aria-label="Show or hide password">
+            <i class="bi" [class.bi-eye]="!showPassword()" [class.bi-eye-slash]="showPassword()"></i>
+          </button>
+        </div>
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <div class="field-error">Use 8–72 characters with upper case, lower case and a number.</div>
+        }
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="confirm">Confirm password</label>
+        <input id="confirm" [type]="showPassword() ? 'text' : 'password'" class="form-control" formControlName="confirmPassword" autocomplete="new-password">
+        @if (form.controls.confirmPassword.touched && form.hasError('mismatch')) {
+          <div class="field-error">Passwords do not match.</div>
+        }
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="setupCode">One-time setup code</label>
+        <input id="setupCode" class="form-control" formControlName="setupCode" autocomplete="off">
+        @if (form.controls.setupCode.touched && form.controls.setupCode.invalid) {
+          <div class="field-error">Setup code is required.</div>
+        }
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="saving()">
+        @if (saving()) { <span class="spinner-border spinner-border-sm"></span> }
+        Create Account
+      </button>
+      <p class="text-center mb-0">Already have an account? <a routerLink="/login">Log in</a></p>
+    </form>
+  }
+</app-auth-layout>

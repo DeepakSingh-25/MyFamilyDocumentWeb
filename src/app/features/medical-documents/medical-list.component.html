@@ -1,0 +1,58 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Medical Records</h2>
+      <p>Prescriptions, reports, scans, bills and insurance — by family member.</p>
+    </div>
+    <a class="btn btn-primary" routerLink="/documents/new" [queryParams]="addParams()"><i class="bi bi-plus-lg"></i> Add Medical Record</a>
+  </div>
+
+  @let s = state();
+  @let c = counts();
+  <div class="member-tabs mb-3">
+    <button class="member-tab" [class.active]="!s.memberId" [attr.aria-pressed]="!s.memberId" (click)="onMember('')">
+      <span class="avatar sm"><i class="bi bi-people"></i></span> Everyone
+      @if (c) { <span class="count">{{ c.total }}</span> }
+    </button>
+    @for (m of members(); track m.id) {
+      <button class="member-tab" [class.active]="s.memberId === m.id" [attr.aria-pressed]="s.memberId === m.id" (click)="onMember(m.id)">
+        <span class="avatar sm">{{ m.name | initials }}</span> {{ m.name }}
+        @if (c) { <span class="count">{{ countFor(m.id) }}</span> }
+      </button>
+    }
+  </div>
+
+  <div class="card-box" #card>
+    <div class="filters">
+      <div class="search">
+        <i class="bi bi-search"></i>
+        <input class="form-control" placeholder="Search reports, hospital or doctor" aria-label="Search medical records"
+          [attr.maxlength]="searchMax" [value]="searchText()" (input)="onSearch($any($event.target).value)">
+      </div>
+      @if (hasFilters()) {
+        <button class="btn btn-link text-decoration-none px-1 clear" (click)="clear()">Clear</button>
+      }
+    </div>
+
+    @if (loadError()) {
+      <div class="empty-state" role="alert">
+        <i class="bi bi-exclamation-circle"></i>
+        <p class="mb-1 fw-semibold">Could not load medical records.</p>
+        <p class="mb-3">{{ loadError() }}</p>
+        <button class="btn btn-primary" (click)="refresh()"><i class="bi bi-arrow-clockwise"></i> Retry</button>
+      </div>
+    } @else {
+      @let r = result();
+      @if (!loading() && r) {
+        <div class="result-count text-gray fs-13">{{ r.totalCount }} {{ r.totalCount === 1 ? 'medical record' : 'medical records' }}</div>
+      }
+      <app-document-table [documents]="records()" [medical]="true" [loading]="loading()" addLabel="Add Medical Record"
+        [emptyText]="hasFilters() ? 'No medical records match these filters.' : 'No medical records found.'"
+        [addQueryParams]="addQuery()" [returnUrl]="currentUrl()" (deleted)="refresh()" />
+      @if (r) {
+        <app-paginator label="Medical records pages" [page]="r.page" [pageSize]="r.pageSize" [totalCount]="r.totalCount"
+          [totalPages]="r.totalPages" [disabled]="loading()" (pageChange)="onPage($event)" (pageSizeChange)="onPageSize($event)" />
+      }
+    }
+  </div>
+</div>

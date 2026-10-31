@@ -1,0 +1,28 @@
+.form-card { max-width: 820px; }
+.drop-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 2px dashed var(--fd-border); border-radius: 10px; padding: 28px 16px; cursor: pointer; text-align: center; background: var(--fd-surface-alt); }
+.drop-zone:hover { border-color: var(--fd-primary); }
+.drop-zone i { font-size: 32px; color: var(--fd-primary); }
+.drop-zone.has-file { border-style: solid; border-color: var(--fd-success); }
+.drop-zone.has-file i { color: var(--fd-success); }
+.file-thumb { max-width: 120px; max-height: 90px; object-fit: contain; border-radius: 6px; border: 1px solid var(--fd-border); background: var(--fd-surface); margin-bottom: 4px; }
+.drop-zone.invalid { border-color: var(--fd-danger); }
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 20px; border-top: 1px solid var(--fd-border); }
+.drop-zone.dragging { border-style: dashed; border-color: var(--fd-primary); background: var(--fd-primary-soft); }
+
+/* Chuni hui file: preview + top-right cross */
+.file-preview { position: relative; display: inline-flex; margin-bottom: 4px; }
+.file-preview .file-thumb { margin-bottom: 0; }
+.file-icon {
+  width: 72px; height: 72px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  background: var(--fd-surface); border: 1px solid var(--fd-border);
+}
+.drop-zone .file-icon i { font-size: 34px; color: var(--fd-danger); }
+.remove-file {
+  position: absolute; top: -9px; right: -9px; width: 24px; height: 24px; border-radius: 50%; padding: 0;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  background: var(--fd-danger); color: #fff; border: 2px solid var(--fd-surface);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .2); transition: transform .15s;
+}
+.drop-zone .remove-file i { font-size: 11px; color: #fff; -webkit-text-stroke: 1px; }
+.remove-file:hover { transform: scale(1.12); }
+.file-name { word-break: break-all; }

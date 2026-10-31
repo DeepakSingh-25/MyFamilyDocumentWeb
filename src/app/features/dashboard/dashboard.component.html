@@ -1,0 +1,88 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h2>Dashboard</h2>
+      <p>A quick look at your family's documents.</p>
+    </div>
+    <a class="btn btn-primary" routerLink="/documents/new"><i class="bi bi-plus-lg"></i> Quick Add Document</a>
+  </div>
+
+  @if (summary(); as s) {
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-xl-3">
+        <a class="card-box stat-tile text-reset text-decoration-none" routerLink="/family-members">
+          <span class="stat-icon"><i class="bi bi-people"></i></span>
+          <div><div class="stat-value">{{ s.totalMembers }}</div><div class="text-gray">Family members</div></div>
+        </a>
+      </div>
+      <div class="col-6 col-xl-3">
+        <a class="card-box stat-tile text-reset text-decoration-none" routerLink="/documents">
+          <span class="stat-icon"><i class="bi bi-files"></i></span>
+          <div><div class="stat-value">{{ s.totalDocuments }}</div><div class="text-gray">Total documents</div></div>
+        </a>
+      </div>
+      <div class="col-6 col-xl-3">
+        <a class="card-box stat-tile text-reset text-decoration-none" routerLink="/medical-documents">
+          <span class="stat-icon medical"><i class="bi bi-heart-pulse"></i></span>
+          <div><div class="stat-value">{{ s.medicalDocuments }}</div><div class="text-gray">Medical records</div></div>
+        </a>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="card-box stat-tile">
+          <span class="stat-icon"><i class="bi bi-calendar-plus"></i></span>
+          <div><div class="stat-value">{{ s.addedThisMonth }}</div><div class="text-gray">Added this month</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-7">
+        <div class="card-box h-100">
+          <div class="card-head">
+            <h5>Recently added</h5>
+            <a routerLink="/documents" class="fs-13">See all</a>
+          </div>
+          <div class="card-body py-2">
+            @for (d of s.recent; track d.id) {
+              <div class="simple-row">
+                <span class="avatar">{{ d.memberName | initials }}</span>
+                <div class="simple-text text-truncate"><b>{{ d.name }}</b> for {{ d.memberName }}</div>
+                <span class="simple-time">{{ d.uploadedOn | date: 'd MMM' }}</span>
+              </div>
+            } @empty {
+              <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p class="mb-3">No documents yet.</p>
+                <a class="btn btn-primary" routerLink="/documents/new"><i class="bi bi-plus-lg"></i> Add your first document</a>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card-box h-100">
+          <div class="card-head"><h5>Browse by category</h5></div>
+          <div class="card-body py-2">
+            @for (c of s.byCategory; track c.category.id) {
+              <a class="simple-row text-reset text-decoration-none"
+                 [routerLink]="c.category.id === medicalId ? '/medical-documents' : '/documents'"
+                 [queryParams]="c.category.id === medicalId ? {} : { category: c.category.id }">
+                <span class="avatar"><i class="bi {{ c.category.icon }}"></i></span>
+                <div class="simple-text">{{ c.category.name }}</div>
+                <span class="simple-time">{{ c.count }}</span>
+              </a>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else if (loadError()) {
+    <div class="alert alert-danger d-flex align-items-center gap-2">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span class="flex-grow-1">{{ loadError() }}</span>
+      <button type="button" class="btn btn-sm btn-primary" (click)="load()">Retry</button>
+    </div>
+  } @else {
+    <div class="text-center py-5"><span class="spinner-border text-primary"></span></div>
+  }
+</div>

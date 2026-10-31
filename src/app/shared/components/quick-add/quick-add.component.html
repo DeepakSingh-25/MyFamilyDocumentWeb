@@ -1,0 +1,38 @@
+<div class="quick-backdrop" (click)="close(); $event.stopPropagation()">
+  <div class="card-box quick-box" role="dialog" aria-modal="true" aria-labelledby="quick-add-title" (click)="$event.stopPropagation()">
+    <div class="card-head">
+      <h5 id="quick-add-title">{{ title() }}</h5>
+      <button type="button" class="icon-btn" (click)="close()" title="Close" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form class="card-body" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      @if (formError()) { <div class="alert alert-danger py-2" role="alert">{{ formError() }}</div> }
+      <div class="mb-3">
+        <label class="form-label" for="quick-name">Name</label>
+        <input #nameInput id="quick-name" class="form-control" formControlName="name" [attr.maxlength]="nameMax()"
+               [placeholder]="isCategory() ? 'e.g. Pet Records' : 'e.g. Uncle'">
+        @if (form.controls.name.touched) {
+          @if (form.controls.name.hasError('required')) {
+            <div class="field-error">Name is required.</div>
+          } @else if (form.controls.name.hasError('maxlength')) {
+            <div class="field-error">Use at most {{ nameMax() }} characters.</div>
+          }
+        }
+      </div>
+      @if (isCategory()) {
+        <div class="mb-3">
+          <label class="form-label" for="quick-examples">Hint <span class="text-gray fw-normal">(optional)</span></label>
+          <input id="quick-examples" class="form-control" formControlName="examples" [attr.maxlength]="examplesMax"
+                 placeholder="What goes here, e.g. Vet bills, vaccination cards">
+          <div class="text-gray fs-13 mt-1">Shown under the Category dropdown.</div>
+        </div>
+      }
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-outline" (click)="close()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          @if (saving()) { <span class="spinner-border spinner-border-sm"></span> }
+          {{ item() ? 'Save' : 'Add' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      @if (isCategory()) {
+        <h2>Document Categories</h2>
+        <p>Add your own document categories. Built-in ones cannot be changed.</p>
+      } @else {
+        <h2>Relationships</h2>
+        <p>Add your own family relationships. Built-in ones cannot be changed.</p>
+      }
+    </div>
+  </div>
+
+  <section class="card-box lookup-card">
+    <div class="card-head">
+      <h5>Built-in and your own</h5>
+      <button class="btn btn-primary btn-sm" (click)="open()">
+        <i class="bi" [class.bi-folder-plus]="isCategory()" [class.bi-person-plus]="!isCategory()"></i> Add
+      </button>
+    </div>
+    <ul class="lookup-list">
+      @for (item of items(); track item.id) {
+        <li class="lookup-row">
+          <div class="lookup-text">
+            <div class="fw-medium text-truncate" [title]="item.name">{{ item.name }}</div>
+            @if (hint(item); as h) { <div class="text-gray fs-13">{{ h }}</div> }
+          </div>
+          @if (item.isSystem) {
+            <span class="pill flex-shrink-0">Built-in</span>
+          } @else {
+            <div class="flex-shrink-0">
+              <button class="icon-btn" title="Rename" [attr.aria-label]="'Rename ' + item.name" (click)="open(item)"><i class="bi bi-pencil"></i></button>
+              <button class="icon-btn danger" title="Delete" [attr.aria-label]="'Delete ' + item.name" (click)="remove(item)"><i class="bi bi-trash"></i></button>
+            </div>
+          }
+        </li>
+      } @empty {
+        <li class="lookup-row text-gray" role="status">{{ failed() ? 'Could not load this list. Please reload the page.' : 'Loading…' }}</li>
+      }
+    </ul>
+  </section>
+</div>
+
+@if (dialog(); as d) {
+  <app-quick-add [kind]="kind()" [item]="d.item" (saved)="dialog.set(null)" (closed)="dialog.set(null)" />
+}

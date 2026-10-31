@@ -1,0 +1,53 @@
+<div class="form-backdrop" (click)="close()">
+  <div class="card-box form-box" role="dialog" aria-modal="true" aria-labelledby="member-form-title" (click)="$event.stopPropagation()">
+    <div class="card-head">
+      <h5 id="member-form-title">{{ member() ? 'Edit Member' : 'Add Member' }}</h5>
+      <button type="button" class="icon-btn" (click)="close()" title="Close" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form class="card-body" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      @if (formError()) { <div class="alert alert-danger py-2" role="alert">{{ formError() }}</div> }
+      <div class="mb-3">
+        <label class="form-label" for="name">Name</label>
+        <input #nameInput id="name" class="form-control" formControlName="name" placeholder="Full name" [attr.maxlength]="nameMax">
+        @if (form.controls.name.touched) {
+          @if (form.controls.name.hasError('required')) {
+            <div class="field-error">Name is required.</div>
+          } @else if (form.controls.name.hasError('maxlength')) {
+            <div class="field-error">Use at most {{ nameMax }} characters.</div>
+          }
+        }
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="relationship">Relationship</label>
+        <select #relationshipSelect id="relationship" class="form-select" formControlName="relationshipId">
+          <option [ngValue]="''">Select</option>
+          @for (r of relationships(); track r.id) {
+            <option [ngValue]="r.id" [disabled]="isSelfDisabled(r.id)">{{ r.name }}{{ isSelfDisabled(r.id) ? ' (already added)' : '' }}</option>
+          }
+          <option [ngValue]="addNewId">+ Add new relationship…</option>
+        </select>
+        @if (form.controls.relationshipId.touched && form.controls.relationshipId.invalid) {
+          <div class="field-error">Please choose a relationship.</div>
+        }
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="dob">Date of birth <span class="text-gray fw-normal">(optional)</span></label>
+        <input id="dob" type="date" class="form-control" formControlName="dateOfBirth" [min]="minDate" [max]="today">
+        @if (form.controls.dateOfBirth.hasError('range')) {
+          <div class="field-error">Please enter a valid date of birth.</div>
+        }
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline" (click)="close()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          @if (saving()) { <span class="spinner-border spinner-border-sm"></span> }
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+@if (addingRelationship()) {
+  <app-quick-add kind="relationship" (saved)="onRelationshipAdded($event)" (closed)="closeAddRelationship()" />
+}

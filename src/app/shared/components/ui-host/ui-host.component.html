@@ -1,0 +1,40 @@
+<!-- Always in the DOM as a live region, so screen readers announce each new toast -->
+<div class="toast-area" aria-live="polite" [style.--toast-duration]="ui.toastMs + 'ms'">
+  @for (t of ui.toasts(); track t.id) {
+    <div class="toast-msg" [class.error]="t.error" [attr.role]="t.error ? 'alert' : null">
+      <span class="toast-icon" aria-hidden="true">
+        <i class="bi" [class.bi-check-lg]="!t.error" [class.bi-exclamation-lg]="t.error"></i>
+      </span>
+      <div class="toast-body">
+        <div class="toast-title">{{ t.title }}</div>
+        <div class="toast-text">{{ t.text }}</div>
+      </div>
+      <button type="button" class="toast-close" aria-label="Close notification" (click)="ui.dismiss(t.id)">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+      <div class="toast-progress" aria-hidden="true"></div>
+    </div>
+  }
+</div>
+
+<!-- Always in the DOM, so screen readers announce the text when it changes -->
+<div class="visually-hidden" role="status">@if (ui.loading()) { Loading… }</div>
+@if (ui.loading()) {
+  <div class="loader-overlay"><div class="loader-spinner" aria-hidden="true"></div></div>
+}
+
+@if (ui.confirmState(); as c) {
+  <div class="modal-backdrop-custom" (click)="ui.answer(false)">
+    <div class="card-box confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message"
+      (click)="$event.stopPropagation()">
+      <div class="card-body">
+        <h5 id="confirm-title" class="mb-2">{{ c.title }}</h5>
+        <p id="confirm-message" class="text-gray mb-4">{{ c.message }}</p>
+        <div class="d-flex justify-content-end gap-2">
+          <button #confirmCancel class="btn btn-outline" (click)="ui.answer(false)">Cancel</button>
+          <button class="btn btn-red" (click)="ui.answer(true)">{{ c.confirmLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

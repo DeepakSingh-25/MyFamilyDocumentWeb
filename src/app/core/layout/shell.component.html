@@ -1,0 +1,79 @@
+<!-- Mobile top bar -->
+<header class="mobile-bar d-lg-none">
+  <button class="icon-btn" (click)="mobileOpen.set(true)" aria-label="Open menu"><i class="bi bi-list fs-4"></i></button>
+  <a class="brand-text" routerLink="/dashboard"><i class="bi bi-shield-lock-fill"></i> Family Docs</a>
+  <button type="button" class="icon-btn" (click)="theme.toggle()"
+          [attr.aria-label]="theme.dark() ? 'Switch to light mode' : 'Switch to night mode'">
+    <i class="bi fs-5" [class.bi-moon-stars]="!theme.dark()" [class.bi-sun]="theme.dark()"></i>
+  </button>
+</header>
+
+@if (mobileOpen()) {
+  <div class="sidebar-backdrop d-lg-none" (click)="closeMobile()"></div>
+}
+
+<nav class="sidebar" [class.open]="mobileOpen()">
+  <a class="logo" routerLink="/dashboard" (click)="closeMobile()" title="Go to Dashboard">
+    <i class="bi bi-shield-lock-fill"></i>
+    <span class="menu-text">My Family Docs</span>
+  </a>
+
+  <ul class="menu-list">
+    @for (item of nav; track item.path) {
+      <li>
+        <a class="menu-link" [routerLink]="item.path" routerLinkActive="active" (click)="closeMobile()" [attr.title]="item.label">
+          <i class="bi {{ item.icon }}"></i>
+          <span class="menu-text">{{ item.label }}</span>
+        </a>
+      </li>
+    }
+  </ul>
+
+  <button class="menu-link logout" (click)="logout()" title="Log out">
+    <i class="bi bi-box-arrow-right"></i>
+    <span class="menu-text">Log out</span>
+  </button>
+</nav>
+
+<div class="body">
+  <header class="topbar d-none d-lg-flex">
+    <div class="text-gray">Keep your family's important papers safe in one place.</div>
+    <div class="d-flex align-items-center gap-3">
+      <button type="button" class="icon-btn theme-btn" (click)="theme.toggle()"
+              [attr.aria-label]="theme.dark() ? 'Switch to light mode' : 'Switch to night mode'"
+              [attr.title]="theme.dark() ? 'Light mode' : 'Night mode'">
+        <i class="bi" [class.bi-moon-stars]="!theme.dark()" [class.bi-sun]="theme.dark()"></i>
+      </button>
+      <div class="user-menu">
+        <button type="button" class="user-chip" (click)="menuOpen.set(!menuOpen())"
+                aria-haspopup="menu" [attr.aria-expanded]="menuOpen()">
+          @if (photoUrl(); as src) {
+            <img class="avatar photo" [src]="src" alt="">
+          } @else {
+            <span class="avatar">{{ userName() | initials }}</span>
+          }
+          <span class="fw-medium">{{ userName() }}</span>
+          <i class="bi bi-chevron-down small text-gray"></i>
+        </button>
+        @if (menuOpen()) {
+          <div class="user-dropdown" role="menu">
+            <a class="dropdown-row" role="menuitem" routerLink="/account/profile" (click)="closeMenu()">
+              <i class="bi bi-person"></i> My Profile
+            </a>
+            <a class="dropdown-row" role="menuitem" routerLink="/account/change-password" (click)="closeMenu()">
+              <i class="bi bi-key"></i> Change Password
+            </a>
+            <div class="dropdown-sep"></div>
+            <button type="button" class="dropdown-row danger" role="menuitem" (click)="closeMenu(); logout()">
+              <i class="bi bi-box-arrow-right"></i> Log out
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <router-outlet />
+  </main>
+</div>

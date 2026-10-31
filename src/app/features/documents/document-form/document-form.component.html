@@ -1,0 +1,124 @@
+<div class="page">
+  <div class="fs-13 text-gray mb-2"><a [routerLink]="backTree()">{{ backLabel() }}</a> / {{ isEdit() ? 'Edit' : 'Add' }}</div>
+  <div class="page-head">
+    <div>
+      <h2>{{ heading() }}</h2>
+      <p>{{ isEdit() ? 'Change the details or replace the file.' : 'Upload a PDF or photo and tell us whose it is.' }}</p>
+    </div>
+  </div>
+
+  @if (loadError()) {
+    <div class="card-box empty-state">
+      <i class="bi bi-file-earmark-x"></i>
+      <p class="mb-3">{{ loadError() }}</p>
+      <a class="btn btn-primary" [routerLink]="backTree()"><i class="bi bi-arrow-left"></i> Back to {{ backLabel() }}</a>
+    </div>
+  } @else if (!ready()) {
+    <div class="text-center py-5"><span class="spinner-border text-primary"></span></div>
+  } @else {
+    <form class="card-box form-card" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <div class="card-body">
+        @if (saveError()) { <div class="alert alert-danger py-2">{{ saveError() }}</div> }
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="name">Document name</label>
+            <input id="name" class="form-control" formControlName="name" placeholder="e.g. Aadhaar Card, Blood Test Report">
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <div class="field-error">Document name is required.</div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="member">Family member</label>
+            <select id="member" class="form-select" formControlName="memberId">
+              <option [ngValue]="''">Select member</option>
+              @for (m of members(); track m.id) { <option [ngValue]="m.id">{{ m.name }} ({{ m.relationship }})</option> }
+            </select>
+            @if (form.controls.memberId.touched && form.controls.memberId.invalid) {
+              <div class="field-error">Please choose a family member.</div>
+            }
+            @if (members().length === 0) {
+              <div class="text-gray fs-13 mt-1">No members yet — <a routerLink="/family-members">add a family member</a> first.</div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="category">Category</label>
+            <select #categorySelect id="category" class="form-select" formControlName="categoryId">
+              <option [ngValue]="''">Select category</option>
+              @for (c of categories(); track c.id) { <option [ngValue]="c.id">{{ c.name }}</option> }
+              <option [ngValue]="addNewId">+ Add new category…</option>
+            </select>
+            @if (selectedCategory()?.examples; as hint) { <div class="text-gray fs-13 mt-1">{{ hint }}</div> }
+            @if (form.controls.categoryId.touched && form.controls.categoryId.invalid) {
+              <div class="field-error">Please choose a category.</div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="date">{{ isMedical() ? 'Report date' : 'Document date' }} <span class="text-gray fw-normal">(optional)</span></label>
+            <input id="date" type="date" class="form-control" formControlName="documentDate">
+          </div>
+
+          @if (isMedical()) {
+            <div class="col-md-6">
+              <label class="form-label" for="hospital">Hospital / Doctor <span class="text-gray fw-normal">(optional)</span></label>
+              <input id="hospital" class="form-control" formControlName="hospitalOrDoctor" placeholder="e.g. Apollo Hospital, Dr. Mehta">
+            </div>
+          }
+
+          <div class="col-12">
+            <label class="form-label">{{ isEdit() ? 'Replace file' : 'File' }} @if (isEdit()) { <span class="text-gray fw-normal">(optional)</span> }</label>
+            <label class="drop-zone" [class.has-file]="file()" [class.invalid]="fileError()" [class.dragging]="dragging()"
+                   (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+              <input type="file" [accept]="accept" (change)="onFile($event)" hidden>
+              @if (dragging()) {
+                <i class="bi bi-cloud-arrow-down"></i>
+                <span class="fw-medium">Drop the file to attach it</span>
+                <span class="text-gray fs-13">PDF, JPG or PNG · up to {{ maxMb }} MB</span>
+              } @else if (file(); as f) {
+                <span class="file-preview">
+                  @if (previewUrl(); as url) {
+                    <img class="file-thumb" [src]="url" alt="Preview of the chosen image">
+                  } @else {
+                    <span class="file-icon"><i class="bi bi-file-earmark-pdf"></i></span>
+                  }
+                  <button type="button" class="remove-file" (click)="removeFile($event)"
+                          aria-label="Remove the chosen file" title="Remove file">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </span>
+                <span class="fw-medium file-name">{{ f.name }} ({{ size(f.size) }})</span>
+                <span class="text-gray fs-13">Click or drop to choose a different file</span>
+              } @else {
+                <i class="bi bi-cloud-arrow-up"></i>
+                <span class="fw-medium">Click to choose a file or drag it here</span>
+                <span class="text-gray fs-13">PDF, JPG or PNG · up to {{ maxMb }} MB</span>
+              }
+            </label>
+            @if (fileError()) { <div class="field-error">{{ fileError() }}</div> }
+            @if (existing(); as e) {
+              @if (!file()) { <div class="text-gray fs-13 mt-1">Current file: {{ e.fileName }} ({{ size(e.fileSize) }}). It stays if you don't choose a new one.</div> }
+            }
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="notes">Notes <span class="text-gray fw-normal">(optional)</span></label>
+            <textarea id="notes" class="form-control" rows="3" formControlName="notes" placeholder="Anything worth remembering"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-outline" [routerLink]="backTree()">Cancel</a>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          @if (saving()) { <span class="spinner-border spinner-border-sm"></span> } @else { <i class="bi bi-check2"></i> }
+          Save Document
+        </button>
+      </div>
+    </form>
+  }
+</div>
+
+@if (addingCategory()) {
+  <app-quick-add kind="category" (saved)="onCategoryAdded($event)" (closed)="closeAddCategory()" />
+}

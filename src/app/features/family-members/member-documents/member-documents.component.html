@@ -1,0 +1,63 @@
+<div class="page">
+  <div class="fs-13 text-gray mb-2"><a routerLink="/family-members">Family Members</a> / {{ state() === 'ready' ? member()?.name : '…' }}</div>
+
+  @switch (state()) {
+    @case ('loading') {
+      <div class="text-center py-5"><span class="spinner-border text-primary"></span></div>
+    }
+    @case ('notFound') {
+      <div class="card-box empty-state">
+        <i class="bi bi-person-x"></i>
+        <p class="mb-3">This family member was not found.</p>
+        <a class="btn btn-primary" routerLink="/family-members"><i class="bi bi-arrow-left"></i> Back to Family Members</a>
+      </div>
+    }
+    @case ('error') {
+      <div class="card-box empty-state" role="alert">
+        <i class="bi bi-exclamation-circle"></i>
+        <p class="mb-1 fw-semibold">Could not load this member.</p>
+        <p class="mb-3">{{ loadError() }}</p>
+        <button class="btn btn-primary" (click)="open()"><i class="bi bi-arrow-clockwise"></i> Retry</button>
+      </div>
+    }
+    @case ('ready') {
+      @let m = member()!;
+      <div class="page-head">
+        <div class="d-flex align-items-center gap-3 min-w-0">
+          <span class="avatar lg">{{ m.name | initials }}</span>
+          <div class="min-w-0">
+            <h2 class="text-truncate">{{ m.name }}</h2>
+            <p>{{ m.relationship }} · {{ total() }} {{ total() === 1 ? 'document' : 'documents' }}</p>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-1">
+          <button class="icon-btn" title="Edit member" aria-label="Edit member" (click)="openEdit()"><i class="bi bi-pencil"></i></button>
+          <button class="icon-btn danger" title="Delete member" aria-label="Delete member" (click)="remove()"><i class="bi bi-trash"></i></button>
+          <a class="btn btn-primary ms-2" routerLink="/documents/new" [queryParams]="{ member: memberId(), returnUrl: returnUrl() }"><i class="bi bi-plus-lg"></i> Add Document</a>
+        </div>
+      </div>
+
+      <div class="chips mb-3">
+        <button class="chip" [class.active]="!category()" [attr.aria-pressed]="!category()" (click)="selectCategory('')">All ({{ total() }})</button>
+        @for (c of categories(); track c.id) {
+          @if (countFor(c.id)) {
+            <button class="chip" [class.active]="category() === c.id" [attr.aria-pressed]="category() === c.id" (click)="selectCategory(c.id)">{{ c.name }} ({{ countFor(c.id) }})</button>
+          }
+        }
+      </div>
+
+      <div class="card-box">
+        <app-document-table [documents]="docs()" [loading]="docsLoading()" emptyText="No documents for this member yet."
+          [addQueryParams]="addParams()" [returnUrl]="returnUrl()" (deleted)="reloadDocs()" />
+        @if (result(); as r) {
+          <app-paginator [label]="m.name + ' documents pages'" [page]="page()" [pageSize]="pageSize()" [totalCount]="r.totalCount"
+            [totalPages]="r.totalPages" [disabled]="docsLoading()" (pageChange)="onPage($event)" (pageSizeChange)="onPageSize($event)" />
+        }
+      </div>
+    }
+  }
+</div>
+
+@if (formOpen()) {
+  <app-member-form [member]="member()" [members]="family()" (saved)="onSaved($event)" (closed)="formOpen.set(false)" (missing)="onMissing($event)" />
+}
