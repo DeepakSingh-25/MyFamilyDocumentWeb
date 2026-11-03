@@ -1,0 +1,1 @@
+import{r as U}from"./chunk-CGuvR6r2.js";function u(e,m,a){let t=e.value,i=e.pristine;e.valueChanges.pipe(U(m)).subscribe(r=>{if(r!==`new`){t=r,i=e.pristine;return}let s=i;e.setValue(t),s&&e.markAsPristine(),i=s,a()})}export{u as t};
