@@ -1,4 +1,4 @@
-/** Production API endpoint. Keep HTTP to match the deployed API host. */
+/** Production API endpoint. HTTPS is required when the frontend is deployed over HTTPS. */
 export const environment = {
-  apiBaseUrl: 'http://mydoc.runasp.net/api',
+  apiBaseUrl: 'https://mydoc.runasp.net/api',
 };
