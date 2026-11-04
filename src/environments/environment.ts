@@ -1,4 +1,4 @@
-/** Production: the API is served from the same origin as the web app. */
+/** Production API endpoint. Keep HTTP to match the deployed API host. */
 export const environment = {
-  apiBaseUrl: '/api/api',
+  apiBaseUrl: 'http://mydoc.runasp.net/api',
 };
